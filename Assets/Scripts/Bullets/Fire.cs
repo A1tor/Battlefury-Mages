@@ -7,8 +7,9 @@ public class Fire : Bullet
     [SerializeField] Sprite[] sprites;
     SpriteRenderer sr;
 
-    private void Start()
+    public override void Awake()
     {
+        base.Awake();
         sr = GetComponentInChildren<SpriteRenderer>();
         sr.sprite = sprites[Random.Range(0, sprites.Length)];
         sr.flipX = Random.Range(0, 2) == 0;

@@ -2,11 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Mirror;
 
-public class HPObject : MonoBehaviour
+public class HPObject : NetworkBehaviour
 {
     [SerializeField] float defHP;
+
+    [SyncVar]
     [SerializeField] float HP;
+    [SyncVar]
     [SerializeField] float HPregen;
     [SerializeField] Slider hpSlider;
     private void Start()
@@ -18,6 +22,7 @@ public class HPObject : MonoBehaviour
             hpSlider.value = HP;
         }
     }
+
     public void RemoveHP(float damage)
     {
         HP -= damage;

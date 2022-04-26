@@ -7,8 +7,10 @@ public class Bolt : Bullet
     [SerializeField] float maxSpeed;
     private int savedDamage;
     [SerializeField] float CD;
-    private void Start()
+
+    public override void Awake()
     {
+        base.Awake();
         savedDamage = damage;
         damage = 0;
     }

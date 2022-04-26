@@ -1,16 +1,16 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Mirror;
 
-public class MageBase : MonoBehaviour
+
+[RequireComponent(typeof(Rigidbody2D))]
+public class MageBase : NetworkBehaviour
 {
     [Header("MoveBase:")]
     [SerializeField] Joystick movJoy;
     [SerializeField] Joystick attJoy;
-    [SerializeField] float maxVelocity;
-    [SerializeField] float acceleration;
-    [SerializeField] float deceleration;
+    [SerializeField] float moveSpeed;
     [SerializeField] float rotSpeed;
     [SerializeField] protected Transform mageSprite;
 
@@ -20,11 +20,10 @@ public class MageBase : MonoBehaviour
     protected MPointer mp;
     protected HPObject hp;
 
-    float velocity = 1;
-
     [Header("Ult:")]
     [SerializeField] Button ultBut;
     Image ultImg;
+
     enum UltStates
     {
         Ready,
@@ -37,6 +36,7 @@ public class MageBase : MonoBehaviour
     [SerializeField] float ultCD;
 
     protected Vector2 motionAxis;
+    [SyncVar]
     protected Vector2 attackAxis;
 
     Animator anim;
@@ -45,8 +45,8 @@ public class MageBase : MonoBehaviour
 
     private void Start()
     {
-        dl = GetComponent<DashLoader>();
         rb = GetComponent<Rigidbody2D>();
+        dl = GetComponent<DashLoader>();
         mp = GetComponent<MPointer>();
         hp = GetComponent<HPObject>();
         anim = GetComponentInChildren<Animator>();
@@ -58,10 +58,10 @@ public class MageBase : MonoBehaviour
         ultImg = ultBut.GetComponentInChildren<Image>();
         StartCoroutine(UltControll());
     }
-
+    
     void  Update()
     {
-        anim.SetBool("Move", rb.velocity.magnitude != 0);
+        anim.SetBool("Move", motionAxis.magnitude!=0);
         mp.ManaRegen();
         hp.HealthRegen();
     }
@@ -85,19 +85,21 @@ public class MageBase : MonoBehaviour
 
     void Move(Vector2 dir)
     {
-        velocity = Mathf.Clamp(velocity, 1, maxVelocity);
-        rb.velocity = dir.normalized * velocity;
-        if (dir.magnitude > 0.1f)
+        if(dir.magnitude>0.3f)
         {
-            velocity *= acceleration;
+            rb.velocity = dir * moveSpeed;
+        }
+        else
+        {
+            rb.velocity = Vector2.zero;
         }
     }
 
+    [Command]
     public void Ult()
     {
         if (ultState == UltStates.Ready)
             OnUltStart();
-
     }
     public virtual void OnUltStart()
     {
@@ -126,7 +128,7 @@ public class MageBase : MonoBehaviour
                     OnUltEnd();
                     break;
                 default:
-                    yield return new WaitUntil(()=>(ultState==UltStates.Ult|| ultState == UltStates.CD));
+                    yield return new WaitUntil(()=>(ultState==UltStates.Ult || ultState == UltStates.CD));
                     break;
             }
         }

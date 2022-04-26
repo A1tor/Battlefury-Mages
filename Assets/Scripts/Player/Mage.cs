@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using Mirror;
 
 public class Mage : MageBase
 {
@@ -19,26 +17,35 @@ public class Mage : MageBase
     protected override void Awake()
     {
         base.Awake();
-        activeBul = firePref; 
+        activeBul = firePref;
     }
+
     protected override void Attack(Vector2 dir)
     {
         
-        if (attackAxis.magnitude == 0) return;
+        if (attackAxis.magnitude <=0.1f) return;
         if (Bullet.time > 0) return;
-        if (mp.ManaUsage(firePref.manaCost))
+        if (mp.ManaUsage(activeBul.manaCost))
         {
-            Bullet bul = Instantiate(activeBul, bulPoint.position, Quaternion.identity);
-            bul.Shot(attackAxis);
+            CmdSpawnBullet();
         }
     }
+
+    [Command]
+    void CmdSpawnBullet()
+    {
+        Bullet bul = NetworkManager.Instantiate(activeBul, bulPoint.position, Quaternion.identity);
+        bul.Shot(mageSprite.up);
+        NetworkServer.Spawn(bul.gameObject, connectionToClient);
+    }
+
     //привязать к игроку при подключении
     public void Dash()
     {
         if (!dl.RemoveCharge()) return;
         Vector2 dashPos = transform.position;
         dashPos += motionAxis.normalized * dashDistance;
-        if (Physics2D.OverlapCircle(dashPos, 1, collMask))
+        if (Physics2D.OverlapCircle(dashPos, 1.5f, collMask))
         {
             RaycastHit2D hit = Physics2D.Raycast(bulPoint.position, motionAxis);
             print(hit.collider.name);
@@ -56,6 +63,7 @@ public class Mage : MageBase
         activeBul = boltPref;
 
     }
+
     public override void OnUltEnd()
     {
         base.OnUltEnd();
