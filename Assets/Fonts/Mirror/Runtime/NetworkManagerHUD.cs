@@ -1,5 +1,7 @@
 // vis2k: GUILayout instead of spacey += ...; removed Update hotkeys to avoid
 // confusion if someone accidentally presses one.
+
+
 using UnityEngine;
 
 namespace Mirror
@@ -12,10 +14,6 @@ namespace Mirror
     public class NetworkManagerHUD : MonoBehaviour
     {
         NetworkManager manager;
-
-        public int offsetX;
-        public int offsetY;
-
         void Awake()
         {
             manager = GetComponent<NetworkManager>();
@@ -23,7 +21,8 @@ namespace Mirror
 
         void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10 + offsetX, 40 + offsetY, 215, 9999));
+            
+            GUILayout.BeginArea(new Rect(Screen.width*0.4f, 20, Screen.width*0.2f, Screen.height*0.7f));
             if (!NetworkClient.isConnected && !NetworkServer.active)
             {
                 StartButtons();
@@ -51,6 +50,7 @@ namespace Mirror
             GUILayout.EndArea();
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         void StartButtons()
         {
             if (!NetworkClient.active)
@@ -58,7 +58,7 @@ namespace Mirror
                 // Server + Client
                 if (Application.platform != RuntimePlatform.WebGLPlayer)
                 {
-                    if (GUILayout.Button("Host (Server + Client)"))
+                    if (GUILayout.Button("Host (Server + Client)",GUILayout.Height(Screen.height*0.1f)))
                     {
                         manager.StartHost();
                     }
@@ -66,12 +66,12 @@ namespace Mirror
 
                 // Client + IP
                 GUILayout.BeginHorizontal();
-                if (GUILayout.Button("Client"))
+                if (GUILayout.Button("Client",GUILayout.Height(Screen.height*0.1f)))
                 {
                     manager.StartClient();
                 }
                 // This updates networkAddress every frame from the TextField
-                manager.networkAddress = GUILayout.TextField(manager.networkAddress);
+                manager.networkAddress = GUILayout.TextField(manager.networkAddress,GUILayout.Height(Screen.height*0.1f));
                 GUILayout.EndHorizontal();
 
                 // Server Only
@@ -82,7 +82,10 @@ namespace Mirror
                 }
                 else
                 {
-                    if (GUILayout.Button("Server Only")) manager.StartServer();
+                    if (GUILayout.Button("Server Only", GUILayout.Height(Screen.height * 0.1f)))
+                    {
+                        manager.StartServer();
+                    }
                 }
             }
             else

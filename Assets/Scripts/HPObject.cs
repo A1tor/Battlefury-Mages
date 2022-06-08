@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
-
+//скрипт хп
 public class HPObject : NetworkBehaviour
 {
     [SerializeField] float defHP;
